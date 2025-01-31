@@ -1,0 +1,87 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Artists {
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  
+  // Relations
+  tracks TrackArtist[]
+}
+
+model Albums {
+  id          Int     @id @default(autoincrement())
+  name        String
+  artistName  String
+  imageUrl    String? 
+  
+  // Relations
+  tracks      Tracks[]
+
+  @@unique([name, artistName], name: "name_artistName")
+}
+
+model Tracks {
+  ISRC      String   @id     // Primary key
+  title     String
+  length    Int?
+  albumId   Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  album    Albums?   @relation(fields: [albumId], references: [id])
+  artists  TrackArtist[]
+  plays    Plays[]
+}
+
+model TrackArtist {
+  trackISRC String  // Changed from trackId Int
+  artistId Int
+  
+  // Relations
+  track    Tracks  @relation(fields: [trackISRC], references: [ISRC])
+  artist   Artists @relation(fields: [artistId], references: [id])
+
+  @@id([trackISRC, artistId])
+}
+
+model Plays {
+  id        Int      @id @default(autoincrement())
+  trackISRC String   
+  userId    String
+  channelId String
+  listeners Int      @default(0)
+  playedAt  DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // Relations
+  track    Tracks    @relation(fields: [trackISRC], references: [ISRC])
+  votes    Votes[]
+
+  @@unique([trackISRC, userId, channelId, playedAt], name: "unique_play")
+}
+
+model Votes {
+  id        Int      @id @default(autoincrement())
+  playId    Int
+  userId    String
+  channelId String
+  dopes     String[]    @default([])
+  nopes     String[]    @default([])
+  bookmarks String[]    @default([])
+  boofs     String[]    @default([])
+  score     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  play      Plays     @relation(fields: [playId], references: [id])
+}
