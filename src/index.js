@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client'
 import { messageBroker } from './lib/messageBroker.js'
+import { startServer } from './server.js'
 
 const prisma = new PrismaClient()
 const CHANNEL = 'track-finished'
@@ -122,18 +123,27 @@ async function handleSongPlayed (message) {
 
 async function main () {
   try {
+    // Start Express server
+    const server = await startServer()
+
+    // Register message broker handler
     messageBroker.registerHandler('songPlayed', handleSongPlayed)
     await messageBroker.subscribe(CHANNEL)
     console.log(`Listening for updates on channel: ${CHANNEL}`)
+
+    // Add server to shutdown cleanup
+    process.on('SIGINT', () => shutdown(server))
+    process.on('SIGTERM', () => shutdown(server))
   } catch (error) {
     console.error('Failed to initialize:', error)
     process.exit(1)
   }
 }
 
-async function shutdown () {
+async function shutdown (server) {
   console.log('Shutting down...')
   try {
+    server?.close()
     await messageBroker.quit()
     await prisma.$disconnect()
     console.log('Cleanup completed')
@@ -143,9 +153,6 @@ async function shutdown () {
     process.exit(1)
   }
 }
-
-process.on('SIGINT', shutdown)
-process.on('SIGTERM', shutdown)
 
 await messageBroker.connect()
 
