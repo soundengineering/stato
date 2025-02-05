@@ -27,18 +27,16 @@ async function handleSongPlayed (message) {
         albumRecord = await tx.albums.upsert({
           where: {
             name_artistName: {
-              name: album.name,
+              name: album,
               artistName: artists[0]
             }
           },
           create: {
-            name: album.name,
+            name: album,
             artistName: artists[0],
-            imageUrl: album.imageUrl
+            imageUrl: null
           },
-          update: {
-            imageUrl: album.imageUrl
-          }
+          update: {}
         })
       }
 
