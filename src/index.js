@@ -161,7 +161,7 @@ main().catch((error) => {
 
 function normalizeVotes (votes = {}) {
   return {
-    dope: votes?.dope || [],
+    dopes: votes?.dope || [],
     nopes: votes?.nopes || [],
     boofs: votes?.boofs || [],
     bookmarks: votes?.bookmarks || []
