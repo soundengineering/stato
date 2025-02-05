@@ -32,10 +32,6 @@ export async function getTracks (req, res) {
       }
     })
 
-    if (!recentTracks || recentTracks.length === 0) {
-      return res.status(204).end()
-    }
-
     const formattedTracks = recentTracks.map(play => ({
       playedAt: play.playedAt,
       channelId: play.channelId,
