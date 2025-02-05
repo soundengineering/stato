@@ -2,10 +2,18 @@ import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
-export async function getRecentTracks (req, res) {
+export async function getTracks (req, res) {
   try {
+    const page = parseInt(req.query.page) || 1
+    const limit = Math.min(parseInt(req.query.limit) || 50, 100) // default 50, max 100
+    const offset = (page - 1) * limit
+
+    // Get total count for pagination metadata
+    const totalCount = await prisma.plays.count()
+
     const recentTracks = await prisma.plays.findMany({
-      take: 10,
+      take: limit,
+      skip: offset,
       orderBy: {
         playedAt: 'desc'
       },
@@ -25,7 +33,7 @@ export async function getRecentTracks (req, res) {
     })
 
     if (!recentTracks || recentTracks.length === 0) {
-      return res.json([])
+      return res.status(204).end()
     }
 
     const formattedTracks = recentTracks.map(play => ({
@@ -53,9 +61,23 @@ export async function getRecentTracks (req, res) {
       }))
     }))
 
-    res.json(formattedTracks)
+    res.status(200).json({
+      status: 'success',
+      count: formattedTracks.length,
+      pagination: {
+        currentPage: page,
+        totalPages: Math.ceil(totalCount / limit),
+        totalRecords: totalCount,
+        recordsPerPage: limit
+      },
+      data: formattedTracks
+    })
   } catch (error) {
     console.error('Error fetching recent tracks:', error)
-    res.status(500).json({ error: 'Internal server error' })
+    res.status(500).json({
+      status: 'error',
+      message: 'Failed to fetch recent tracks',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    })
   }
 }

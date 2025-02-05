@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { getRecentTracks } from './recent-tracks.js'
+import { getTracks } from './tracks.js'
 
 const router = Router()
 
@@ -9,7 +9,7 @@ router.get('/health', (req, res) => {
 })
 
 // Recent tracks endpoint
-router.get('/recent-tracks', getRecentTracks)
+router.get('/tracks', getTracks)
 
 // Catch-all route
 router.get('*', (req, res) => {

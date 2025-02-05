@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client'
-import { messageBroker } from './lib/messageBroker.js'
+import { messageBroker } from '@soundengineering/hermes'
 import { startServer } from './server.js'
 
 const prisma = new PrismaClient()
