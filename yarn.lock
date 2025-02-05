@@ -156,7 +156,7 @@
 
 "@soundengineering/hermes@soundengineering/hermes":
   version "1.0.0"
-  resolved "https://codeload.github.com/soundengineering/hermes/tar.gz/15600b6f54287b75df789e0fe1c08f67a0c3e0ba"
+  resolved "https://codeload.github.com/soundengineering/hermes/tar.gz/b3f798b0aa8815ae9b3e04cabcbbdd30c7051eab"
   dependencies:
     node-fetch "^3.3.2"
     redis "^4.7.0"

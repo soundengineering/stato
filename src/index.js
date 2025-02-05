@@ -176,7 +176,7 @@ function calculateScore (normalizedVotes) {
     boof: 4
   }
 
-  return (votingPoints.dope * normalizedVotes.dope.length) +
+  return (votingPoints.dope * normalizedVotes.dopes.length) +
          (votingPoints.bookmark * (normalizedVotes.bookmarks.length - normalizedVotes.boofs.length)) +
          (votingPoints.boof * normalizedVotes.boofs.length) +
          (votingPoints.nope * (normalizedVotes.nopes.length - normalizedVotes.boofs.length))
