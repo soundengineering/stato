@@ -127,7 +127,7 @@ async function main () {
     const server = await startServer()
 
     // Register message broker handler
-    messageBroker.registerHandler('songPlayed', handleSongPlayed)
+    messageBroker.registerHandler(CHANNEL, handleSongPlayed)
     await messageBroker.subscribe(CHANNEL)
     console.log(`Listening for updates on channel: ${CHANNEL}`)
 
