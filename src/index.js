@@ -124,7 +124,7 @@ async function main () {
     // Register message broker handler
     messageBroker.registerHandler(CHANNEL, handleSongPlayed)
     await messageBroker.subscribe(CHANNEL)
-    console.log(`Listening for updates on channel: ${CHANNEL}`)
+    console.log(`Ready and listening for updates on channel: ${CHANNEL}`)
 
     // Add server to shutdown cleanup
     process.on('SIGINT', () => shutdown(server))
