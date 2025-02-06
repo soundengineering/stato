@@ -8,7 +8,7 @@ const CHANNEL = 'track-finished'
 
 async function handleSongPlayed (message) {
   const { channelId, track, sender, playedAt, listeners } = message
-  const { title, artists, album, votes, ISRC } = track
+  const { title, artists, album, albumArt, votes, ISRC } = track
   const { userId, displayName } = sender
 
   try {
@@ -35,7 +35,7 @@ async function handleSongPlayed (message) {
           create: {
             name: album,
             artistId: artistRecords[0].id,
-            imageUrl: null
+            imageUrl: albumArt
           },
           update: {}
         })
@@ -84,7 +84,7 @@ async function handleSongPlayed (message) {
       })
 
       const normalizedVotes = normalizeVotes(votes)
-      
+
       await tx.plays.upsert({
         where: {
           unique_play: {
@@ -155,4 +155,3 @@ main().catch((error) => {
   console.error('Unhandled error:', error)
   shutdown()
 })
-
