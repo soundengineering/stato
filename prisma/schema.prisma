@@ -45,7 +45,7 @@ model Tracks {
   // Relations
   album    Albums?   @relation(fields: [albumId], references: [id])
   artists  TrackArtist[]
-  plays    Plays[]
+  plays     Plays[]
   @@index([title])
 }
 
@@ -80,7 +80,9 @@ model Plays {
   
   // Relations
   track    Tracks    @relation(fields: [trackISRC], references: [ISRC])
-  @@index([playedAt])
+  @@index([playedAt])     // For date range queries
+  @@index([trackISRC, playedAt]) // For combined track+date lookups
+  @@index([score])        // For score sorting
   @@index([userId])
   @@index([channelId])
   @@unique([trackISRC, userId, channelId, playedAt], name: "unique_play")

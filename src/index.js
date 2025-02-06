@@ -1,7 +1,7 @@
 import { PrismaClient } from '@prisma/client'
 import { messageBroker } from '@soundengineering/hermes'
 import { startServer } from './server.js'
-import { normalizeVotes, calculateScore } from './votesAndScoring.js'
+import { normalizeVotes, calculateScore } from './utils/votesAndScoring.js'
 
 const prisma = new PrismaClient()
 const CHANNEL = 'track-finished'

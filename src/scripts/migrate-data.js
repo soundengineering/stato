@@ -1,6 +1,6 @@
 import knex from 'knex'
 import { PrismaClient } from '@prisma/client'
-import knexfile from '../../../rvrb-core/knexfile.js'
+import knexfile from '../../../../rvrb-core/knexfile.js'
 import { normalizeVotes, calculateScore } from '../utils/votesAndScoring.js'
 import fs from 'fs/promises'
 import path from 'path'
