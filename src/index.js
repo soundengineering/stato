@@ -1,12 +1,13 @@
 import { PrismaClient } from '@prisma/client'
 import { messageBroker } from '@soundengineering/hermes'
 import { startServer } from './server.js'
+import { normalizeVotes, calculateScore } from './votesAndScoring.js'
 
 const prisma = new PrismaClient()
 const CHANNEL = 'track-finished'
 
 async function handleSongPlayed (message) {
-  const { channelId, track, sender, playedAt } = message
+  const { channelId, track, sender, playedAt, listeners } = message
   const { title, artists, album, votes, ISRC } = track
   const { userId, displayName } = sender
 
@@ -82,7 +83,9 @@ async function handleSongPlayed (message) {
         }
       })
 
-      const play = await tx.plays.upsert({
+      const normalizedVotes = normalizeVotes(votes)
+      
+      await tx.plays.upsert({
         where: {
           unique_play: {
             trackISRC: track.ISRC,
@@ -96,20 +99,14 @@ async function handleSongPlayed (message) {
           userId,
           channelId,
           playedAt,
-          listeners: 1
+          listeners,
+          dopes: normalizedVotes.dopes,
+          nopes: normalizedVotes.nopes,
+          boofs: normalizedVotes.boofs,
+          bookmarks: normalizedVotes.bookmarks,
+          score: calculateScore(normalizedVotes)
         },
         update: {}
-      })
-
-      const normalizedVotes = normalizeVotes(votes)
-      await tx.votes.create({
-        data: {
-          playId: play.id,
-          userId,
-          channelId,
-          ...normalizedVotes,
-          score: calculateScore(normalizedVotes)
-        }
       })
 
       console.log(`Recorded play for "${title}" by ${artists.join(', ')}, played by ${displayName}`)
@@ -159,25 +156,3 @@ main().catch((error) => {
   shutdown()
 })
 
-function normalizeVotes (votes = {}) {
-  return {
-    dopes: votes?.dope || [],
-    nopes: votes?.nopes || [],
-    boofs: votes?.boofs || [],
-    bookmarks: votes?.bookmarks || []
-  }
-}
-
-function calculateScore (normalizedVotes) {
-  const votingPoints = {
-    dope: 1,
-    nope: -1,
-    bookmark: 3,
-    boof: 4
-  }
-
-  return (votingPoints.dope * normalizedVotes.dopes.length) +
-         (votingPoints.bookmark * (normalizedVotes.bookmarks.length - normalizedVotes.boofs.length)) +
-         (votingPoints.boof * normalizedVotes.boofs.length) +
-         (votingPoints.nope * (normalizedVotes.nopes.length - normalizedVotes.boofs.length))
-}

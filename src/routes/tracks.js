@@ -27,8 +27,7 @@ export async function getTracks (req, res) {
               }
             }
           }
-        },
-        votes: true
+        }
       }
     })
 
@@ -48,13 +47,13 @@ export async function getTracks (req, res) {
             }
           : null
       },
-      votes: play.votes.map(vote => ({
-        dopes: vote.dopes,
-        nopes: vote.nopes,
-        bookmarks: vote.bookmarks,
-        boofs: vote.boofs,
-        score: vote.score
-      }))
+      votes: {
+        dopes: play.dopes,
+        nopes: play.nopes,
+        bookmarks: play.bookmarks,
+        boofs: play.boofs,
+        score: play.score
+      }
     }))
 
     res.status(200).json({

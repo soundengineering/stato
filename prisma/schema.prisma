@@ -8,23 +8,30 @@ datasource db {
 }
 
 model Artists {
-  id    Int    @id @default(autoincrement())
-  name  String @unique
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   
   // Relations
-  tracks TrackArtist[]
+  tracks    TrackArtist[]
+  albums    Albums[]
+  @@index([name])
 }
 
 model Albums {
-  id          Int     @id @default(autoincrement())
-  name        String
-  artistName  String
-  imageUrl    String? 
+  id        Int      @id @default(autoincrement())
+  name      String
+  artistId  Int
+  imageUrl  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   
   // Relations
-  tracks      Tracks[]
-
-  @@unique([name, artistName], name: "name_artistName")
+  artist    Artists  @relation(fields: [artistId], references: [id])
+  tracks    Tracks[]
+  @@index([name])
+  @@unique([name, artistId], name: "name_artistId")
 }
 
 model Tracks {
@@ -39,11 +46,14 @@ model Tracks {
   album    Albums?   @relation(fields: [albumId], references: [id])
   artists  TrackArtist[]
   plays    Plays[]
+  @@index([title])
 }
 
 model TrackArtist {
-  trackISRC String  // Changed from trackId Int
-  artistId Int
+  trackISRC  String
+  artistId   Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
   
   // Relations
   track    Tracks  @relation(fields: [trackISRC], references: [ISRC])
@@ -62,26 +72,16 @@ model Plays {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   
+  dopes     String[] @default([])
+  nopes     String[] @default([])
+  bookmarks String[] @default([])
+  boofs     String[] @default([])
+  score     Int      @default(0)
+  
   // Relations
   track    Tracks    @relation(fields: [trackISRC], references: [ISRC])
-  votes    Votes[]
-
+  @@index([playedAt])
+  @@index([userId])
+  @@index([channelId])
   @@unique([trackISRC, userId, channelId, playedAt], name: "unique_play")
-}
-
-model Votes {
-  id        Int      @id @default(autoincrement())
-  playId    Int
-  userId    String
-  channelId String
-  dopes     String[]    @default([])
-  nopes     String[]    @default([])
-  bookmarks String[]    @default([])
-  boofs     String[]    @default([])
-  score     Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  play      Plays     @relation(fields: [playId], references: [id])
 }
